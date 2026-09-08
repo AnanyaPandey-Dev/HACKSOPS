@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KrishiSetu | Kumaon Regional Mandi & FPO Linkage Engine</title>
+  <!-- SheetJS Library for Excel Import & Template Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <!-- Import Google GenAI SDK using ESM importmap -->
+  <script type="importmap">
+    {
+      "imports": {
+        "@google/genai": "https://esm.run/@google/genai"
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --primary: #15803d;
+      --primary-hover: #166534;
+      --primary-light: #dcfce7;
+      --accent: #ca8a04;
+      --surface: #ffffff;
+      --bg: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 10px;
+      --best-border: #22c55e;
+      --best-bg: #f0fdf4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding-bottom: 3rem;
+    }
+
+    .gov-strip {
+      background: #0f172a;
+      color: #94a3b8;
+      font-size: 0.75rem;
+      padding: 0.4rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    header {
+      background-color: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.85rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .brand-logo {
+      background-color: var(--primary);
+      color: #ffffff;
+      font-weight: 800;
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      font-size: 1.1rem;
+    }
+
+    .brand-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .role-switcher {
+      display: flex;
+      background-color: #f1f5f9;
+      padding: 0.25rem;
+      border-radius: 8px;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+    }
+
+    .role-btn {
+      border: none;
+      background: transparent;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .role-btn.active {
+      background: var(--surface);
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 1.5rem auto;
+      padding: 0 1rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .card-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, select {
+      padding: 0.65rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+    }
+
+    .btn {
+      padding: 0.65rem 1.25rem;
+      border-radius: 6px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background-color: #e2e8f0;
+    }
+
+    .btn-danger {
+      background-color: #fee2e2;
+      color: #b91c1c;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.8rem;
+    }
+
+    .btn-danger:hover {
+      background-color: #fca5a5;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .market-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .market-card.best-deal {
+      border: 2px solid var(--best-border);
+      background-color: var(--best-bg);
+    }
+
+    .badge-best {
+      position: absolute;
+      top: -11px;
+      right: 12px;
+      background-color: var(--primary);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.25rem 0.55rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .market-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .market-distance {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+      font-size: 0.85rem;
+    }
+
+    .metric-row.net {
+      border-top: 1px dashed var(--border);
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--primary-hover);
+    }
+
+    .fpo-comparison-banner {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .fpo-comp-box h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .fpo-comp-box .price-val {
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-top: 0.25rem;
+    }
+
+    .pool-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 10px;
+      background-color: #e2e8f0;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background-color: var(--primary);
+      transition: width 0.3s ease;
+    }
+
+    .farmer-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .farmer-chip {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      padding: 0.25rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      color: var(--text-main);
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background-color: #f8fafc;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+
+    .excel-dropzone {
+      border: 2px dashed #94a3b8;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+      background: #f8fafc;
+      margin-bottom: 1.25rem;
+    }
+
+    .excel-dropzone p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.4rem;
+    }
+
+    /* AI Advisory Section Styles */
+    .ai-wrapper {
+      margin-top: 2rem;
+      border: 1px solid #c7d2fe;
+      background: #faf5ff;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+
+    .ai-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .ai-header h3 {
+      font-size: 1rem;
+      color: #581c87;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .key-badge {
+      font-size: 0.75rem;
+      background: #ede9fe;
+      border: 1px solid #c4b5fd;
+      color: #6d28d9;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #ai-advisory-output {
+      height: 280px;
+      background: var(--surface);
+      border: 1px solid #e9d5ff;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .chat-msg {
+      padding: 0.6rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      max-width: 85%;
+      white-space: pre-wrap;
+    }
+
+    .chat-msg.user {
+      align-self: flex-end;
+      background: #6366f1;
+      color: #ffffff;
+    }
+
+    .chat-msg.ai {
+      align-self: flex-start;
+      background: #f3e8ff;
+      color: #3b0764;
+      border: 1px solid #e9d5ff;
+    }
+
+    .ai-quick-chips {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+
+    .chip-btn {
+      background: #f3e8ff;
+      border: 1px solid #d8b4fe;
+      color: #6b21a8;
+      padding: 0.25rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .chip-btn:hover {
+      background: #e9d5ff;
+    }
+
+    .ai-input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .ai-input-group input {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="gov-strip">
+    <span>Uttarakhand State Agricultural Marketing Board (UKAMB) • Live Mandi Ingestion Node</span>
+    <span id="activeLocationBanner">Active Origin: Haldwani</span>
+  </div>
+
+  <header>
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-logo">KS</div>
+        <div class="brand-title">KrishiSetu</div>
+      </div>
+      <nav class="role-switcher">
+        <button class="role-btn active" onclick="switchRole('farmer', event)">Farmer (User)</button>
+        <button class="role-btn" onclick="switchRole('fpo', event)">FPO Linkage & Pooling</button>
+        <button class="role-btn" onclick="switchRole('buyer', event)">Buyer View</button>
+        <button class="role-btn" onclick="switchRole('admin', event)">Admin View</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1. FARMER / USER VIEW -->
+    <section id="panel-farmer" class="tab-panel active">
+      <div class="card">
+        <h2 class="card-title">Mandi Price Discovery & Logistics Comparison</h2>
+        <p class="card-subtitle">Calculates gross revenue, freight deductions, and net returns specifically from your origin location across all registered mandis.</p>
+
+        <form id="farmerForm" onsubmit="return handleFarmerSubmit(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="farmerCrop">Crop Type</label>
+              <select id="farmerCrop" required></select>
+            </div>
+            <div class="form-group">
+              <label for="farmerYield">Yield Quantity (Quintals)</label>
+              <input type="number" id="farmerYield" min="1" step="any" value="50" placeholder="e.g. 50" required />
+            </div>
+            <div class="form-group">
+              <label for="farmerLocationInput">Your Location (Village / Town)</label>
+              <input 
+                type="text" 
+                id="farmerLocationInput" 
+                placeholder="e.g. Bhimtal, Haldwani, Nasik, Ahmedabad, Durgapur, Rajkot, Aligarh" 
+                value="Haldwani" 
+                required 
+              />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="compareMarketsBtn">Calculate & Compare Markets</button>
+        </form>
+
+        <div id="comparisonResults" class="comparison-grid"></div>
+      </div>
+    </section>
+
+    <!-- 2. FPO LINKAGE & AGGREGATOR VIEW -->
+    <section id="panel-fpo" class="tab-panel">
+      <div class="card">
+        <h2 class="card-title">Small Farmer Linkage & Collective Price Discovery</h2>
+        <p class="card-subtitle">Link your small harvests with neighboring marginal farmers across regional mandis to eliminate transport exploitation.</p>
+
+        <div class="fpo-comparison-banner">
+          <div class="fpo-comp-box">
+            <h4>Average Solo Selling Price</h4>
+            <div class="price-val" style="color: var(--text-muted);">₹2,340 / Qtl</div>
+            <small style="color: #b91c1c;">- High LTL (Part-load) Transport Fee</small>
+          </div>
+          <div class="fpo-comp-box">
+            <h4>FPO Collective Bulk Price</h4>
+            <div class="price-val" style="color: var(--primary);">₹2,490 / Qtl</div>
+            <small style="color: var(--primary);">+ ₹150/Qtl Direct FTL Benefit</small>
+          </div>
+          <div class="fpo-comp-box">
+            <h4>Logistics Savings</h4>
+            <div class="price-val" style="color: #0284c7;">25% Savings</div>
+            <small>Shared full-truckload dispatch</small>
+          </div>
+        </div>
+
+        <h3 style="font-size: 1.05rem; margin-bottom: 0.75rem;">Active Collective Batches & Linked Farmers</h3>
+        <div id="fpoPoolsList"></div>
+
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
+
+        <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Join An FPO Linkage Batch</h3>
+        <form id="pledgeForm" onsubmit="pledgeToPool(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="pledgeFarmerName">Farmer Name</label>
+              <input type="text" id="pledgeFarmerName" placeholder="e.g. Ramesh Chandra Joshi" required />
+            </div>
+            <div class="form-group">
+              <label for="pledgeFarmerVillage">Farmer Village / Town</label>
+              <input type="text" id="pledgeFarmerVillage" placeholder="e.g. Bhowali Sanatorium" required />
+            </div>
+            <div class="form-group">
+              <label for="pledgePoolSelect">Select Aggregation Batch</label>
+              <select id="pledgePoolSelect" required></select>
+            </div>
+            <div class="form-group">
+              <label for="pledgeQuantity">Quantity (Quintals)</label>
+              <input type="number" id="pledgeQuantity" min="1" step="any" placeholder="e.g. 15" required />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Link Produce to Collective Batch</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 3. BUYER VIEW -->
+    <section id="panel-buyer" class="tab-panel">
+      <div class="card">
+        <h2 class="card-title">Submit Procurement Requirement</h2>
+        <p class="card-subtitle">Industrial millers and exporters can post harvest intake orders across regional hubs.</p>
+        
+        <form id="buyerDemandForm" onsubmit="postBuyerDemand(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="buyerName">Organization / Buyer Name</label>
+              <input type="text" id="buyerName" placeholder="e.g. Kumaon Agro Industries" required />
+            </div>
+            <div class="form-group">
+              <label for="buyerCrop">Target Crop</label>
+              <select id="buyerCrop" required></select>
+            </div>
+            <div class="form-group">
+              <label for="buyerQuantity">Quantity Required (Qtl)</label>
+              <input type="number" id="buyerQuantity" min="1" required />
+            </div>
+            <div class="form-group">
+              <label for="buyerPrice">Offer Price (₹/Qtl)</label>
+              <input type="number" id="buyerPrice" min="1" required />
+            </div>
+            <div class="form-group">
+              <label for="buyerLocationName">Intake Location / City</label>
+              <input type="text" id="buyerLocationName" placeholder="e.g. Rudrapur, Haldwani, Nasik, Rajkot" required />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Post Requirement</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Active Market Demands (Calculated From Your Location)</h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Buyer / Organization</th>
+                <th>Crop</th>
+                <th>Quantity (Qtl)</th>
+                <th>Offer Price (₹/Qtl)</th>
+                <th>Distance From You</th>
+                <th>Effective Farmgate Return</th>
+              </tr>
+            </thead>
+            <tbody id="buyerDemandTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. ADMIN VIEW -->
+    <section id="panel-admin" class="tab-panel">
+      <div class="card" style="border-left: 4px solid var(--primary);">
+        <h2 class="card-title">Bulk Import Mandi Data via Excel (.xlsx / .csv)</h2>
+        <p class="card-subtitle">Upload spreadsheet files directly to update regional mandis, crops, and live prices across all user portals instantly.</p>
+        
+        <div class="excel-dropzone">
+          <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display: none;" onchange="handleExcelUpload(event)" />
+          <button type="button" class="btn btn-primary" onclick="document.getElementById('excelFileInput').click()">
+            📁 Choose Excel File to Import
+          </button>
+          <button type="button" class="btn btn-secondary" style="margin-left: 0.5rem;" onclick="downloadSampleExcel()">
+            📥 Download Sample Template (.xlsx)
+          </button>
+          <p>Supported columns: <strong>MarketName, City, Crop, BasePrice</strong> (Lat & Long optional)</p>
+        </div>
+        <div id="importStatus" style="font-size: 0.85rem; font-weight: 600;"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Logistics & Transportation Factors</h2>
+        <p class="card-subtitle">Update base freight charges applied across routes in Uttarakhand and regional centers.</p>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="adminFreightRate">Freight Rate (₹ / Qtl / KM)</label>
+            <input type="number" id="adminFreightRate" step="0.01" min="0" />
+          </div>
+          <div class="form-group">
+            <label for="adminFpoDiscount">FPO Bulk Transport Discount (%)</label>
+            <input type="number" id="adminFpoDiscount" step="1" min="0" max="100" />
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="updateLogisticsSettings()">Update Transport Factors</button>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Live Registered Mandis Directory</h2>
+        <p class="card-subtitle">Data shown below reflects directly onto the Farmer and FPO calculation modules.</p>
+        
+        <form id="addMarketForm" onsubmit="addNewMarket(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="newMarketName">Market Name</label>
+              <input type="text" id="newMarketName" placeholder="e.g. Lalkuan Sub-Yard" required />
+            </div>
+            <div class="form-group">
+              <label for="newMarketCity">City / Location</label>
+              <input type="text" id="newMarketCity" placeholder="e.g. Haldwani" required />
+            </div>
+            <div class="form-group">
+              <label for="newCropSelect">Crop</label>
+              <select id="newCropSelect" required></select>
+            </div>
+            <div class="form-group">
+              <label for="newCropPrice">Base Price (₹/Qtl)</label>
+              <input type="number" id="newCropPrice" min="1" required />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Add Single Mandi</button>
+        </form>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Market Name</th>
+                <th>City</th>
+                <th>Crop</th>
+                <th>Base Price</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminMarketTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. GEMINI AI ADVISORY BLOCK -->
+    <section class="ai-wrapper">
+      <div class="ai-header">
+        <h3>✨ Gemini Market Intelligence Assistant</h3>
+        <button class="key-badge" onclick="promptApiKey()">🔑 Set / Change Gemini API Key</button>
+      </div>
+      <div id="ai-advisory-output">
+        <div class="chat-msg ai">
+          Namaste! I am your AI Market Assistant powered by Gemini. Ask me where to sell, whether to hold your produce, or how to combine with nearby FPOs for better bargaining power!
+        </div>
+      </div>
+      <div class="ai-quick-chips">
+        <button class="chip-btn" onclick="sendQuickAiQuery('Which mandi provides the highest net profit after transport deductions?')">🌾 Highest Net Return</button>
+        <button class="chip-btn" onclick="sendQuickAiQuery('Should I sell my wheat now or hold for 2-3 weeks?')">⏳ Sell Now vs Hold?</button>
+        <button class="chip-btn" onclick="sendQuickAiQuery('How much transport cost will I save by joining an FPO?')">🚚 FPO Freight Benefits</button>
+      </div>
+      <div class="ai-input-group">
+        <input type="text" id="ai-query-input" placeholder="Ask Gemini (e.g. Compare selling Soybean in Rudrapur vs Haldwani)..." />
+        <button type="button" class="btn btn-primary" id="ai-submit-btn" onclick="handleAiQuerySubmit()">Ask AI</button>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { GoogleGenAI } from "@google/genai";
+
+    const KNOWN_COORDINATES = {
+      "haldwani": { lat: 29.2183, lng: 79.5130 },
+      "rudrapur": { lat: 28.9800, lng: 79.4000 },
+      "bhimtal": { lat: 29.3500, lng: 79.5667 },
+      "bhowali": { lat: 29.3833, lng: 79.5167 },
+      "nainital": { lat: 29.3919, lng: 79.4542 },
+      "ahmedabad": { lat: 23.0225, lng: 72.5714 },
+      "durgapur": { lat: 23.5204, lng: 87.3119 },
+      "nasik": { lat: 20.0059, lng: 73.7898 },
+      "nashik": { lat: 20.0059, lng: 73.7898 },
+      "alipurduar": { lat: 26.4889, lng: 89.5271 },
+      "jalpaiguri": { lat: 26.5422, lng: 88.7180 },
+      "lasalgaon": { lat: 20.1472, lng: 74.2307 },
+      "pimpalgaon": { lat: 20.1700, lng: 73.9800 },
+      "bangalore": { lat: 12.9716, lng: 77.5946 },
+      "kayamkulam": { lat: 9.1725, lng: 76.5011 },
+      "pratapgarh": { lat: 24.0326, lng: 74.7802 },
+      "kalapipal": { lat: 23.3364, lng: 76.8417 },
+      "dahod": { lat: 22.8366, lng: 74.2562 },
+      "rajkot": { lat: 22.3039, lng: 70.8022 },
+      "akbarpur": { lat: 26.4385, lng: 82.5375 },
+      "ajuha": { lat: 25.6450, lng: 81.3320 },
+      "aligarh": { lat: 27.8974, lng: 78.0880 },
+      "alwar": { lat: 27.5530, lng: 76.6346 },
+      "asansol": { lat: 23.6889, lng: 86.9661 },
+      "kalyani": { lat: 22.9750, lng: 88.4344 },
+      "kalipur": { lat: 22.9800, lng: 88.4000 },
+      "ramkrishnapur": { lat: 22.5800, lng: 88.3300 },
+      "bishnupur": { lat: 23.0700, lng: 87.3200 }
+    };
+
+    const DEFAULT_CROPS = ["Wheat", "Soybean", "Mustard", "Chana", "Onion", "Potato"];
+
+    const DEFAULT_MARKETS = [
+      { id: 1, name: "Haldwani Mandi Samiti (Bareilly Rd)", city: "Haldwani", lat: 29.2183, lng: 79.5130, crop: "Wheat", basePrice: 2360 },
+      { id: 2, name: "Haldwani Mandi Samiti", city: "Haldwani", lat: 29.2183, lng: 79.5130, crop: "Soybean", basePrice: 4890 },
+      { id: 3, name: "Rudrapur APMC Mandi (US Nagar Hub)", city: "Rudrapur", lat: 28.9800, lng: 79.4000, crop: "Wheat", basePrice: 2390 },
+      { id: 4, name: "Rudrapur APMC Mandi", city: "Rudrapur", lat: 28.9800, lng: 79.4000, crop: "Soybean", basePrice: 4940 },
+      { id: 5, name: "Rudrapur APMC Mandi", city: "Rudrapur", lat: 28.9800, lng: 79.4000, crop: "Mustard", basePrice: 5460 },
+      { id: 6, name: "Bhimtal Sub-Market Yard", city: "Bhimtal", lat: 29.3500, lng: 79.5667, crop: "Soybean", basePrice: 4820 },
+      { id: 7, name: "Bhimtal Sub-Market Yard", city: "Bhimtal", lat: 29.3500, lng: 79.5667, crop: "Wheat", basePrice: 2330 },
+      { id: 8, name: "Bhowali Hill Produce Mandi", city: "Bhowali", lat: 29.3833, lng: 79.5167, crop: "Soybean", basePrice: 4790 },
+      { id: 9, name: "Bhowali Hill Produce Mandi", city: "Bhowali", lat: 29.3833, lng: 79.5167, crop: "Chana", basePrice: 5880 },
+      { id: 10, name: "Nainital Krishi Depot", city: "Nainital", lat: 29.3919, lng: 79.4542, crop: "Wheat", basePrice: 2310 },
+      { id: 12, name: "Ahmedabad Mandi Yard", city: "Ahmedabad", lat: 23.0225, lng: 72.5714, crop: "Wheat", basePrice: 2450 },
+      { id: 13, name: "Durgapur Market Yard", city: "Durgapur", lat: 23.5204, lng: 87.3119, crop: "Wheat", basePrice: 2380 },
+      { id: 14, name: "Nasik Main APMC", city: "Nasik", lat: 20.0059, lng: 73.7898, crop: "Soybean", basePrice: 4900 },
+      { id: 15, name: "Alipurduar Market Yard", city: "Alipurduar", lat: 26.4889, lng: 89.5271, crop: "Wheat", basePrice: 2350 },
+      { id: 16, name: "Jalpaiguri Market Yard", city: "Jalpaiguri", lat: 26.5422, lng: 88.7180, crop: "Wheat", basePrice: 2370 },
+      { id: 17, name: "Lasalgaon Mandi Yard", city: "Lasalgaon", lat: 20.1472, lng: 74.2307, crop: "Soybean", basePrice: 4980 },
+      { id: 18, name: "Pimpalgaon APMC Market", city: "Pimpalgaon", lat: 20.1700, lng: 73.9800, crop: "Onion", basePrice: 2200 },
+      { id: 19, name: "Bangalore APMC Market", city: "Bangalore", lat: 12.9716, lng: 77.5946, crop: "Chana", basePrice: 6100 },
+      { id: 20, name: "Kayamkulam Market Yard", city: "Kayamkulam", lat: 9.1725, lng: 76.5011, crop: "Chana", basePrice: 6250 },
+      { id: 21, name: "Pratapgarh Grain Market", city: "Pratapgarh", lat: 24.0326, lng: 74.7802, crop: "Wheat", basePrice: 2390 },
+      { id: 22, name: "Kalapipal Mandi Yard", city: "Kalapipal", lat: 23.3364, lng: 76.8417, crop: "Soybean", basePrice: 4850 },
+      { id: 23, name: "Dahod Grain Market", city: "Dahod", lat: 22.8366, lng: 74.2562, crop: "Wheat", basePrice: 2410 },
+      { id: 24, name: "Rajkot Grain Market", city: "Rajkot", lat: 22.3039, lng: 70.8022, crop: "Wheat", basePrice: 2420 },
+      { id: 25, name: "Akbarpur APMC Yard", city: "Akbarpur", lat: 26.4385, lng: 82.5375, crop: "Wheat", basePrice: 2360 },
+      { id: 26, name: "Ajuha APMC Market", city: "Ajuha", lat: 25.6450, lng: 81.3320, crop: "Wheat", basePrice: 2380 },
+      { id: 27, name: "Aligarh APMC Market", city: "Aligarh", lat: 27.8974, lng: 78.0880, crop: "Wheat", basePrice: 2400 },
+      { id: 28, name: "Alwar (F&V) Market Yard", city: "Alwar", lat: 27.5530, lng: 76.6346, crop: "Mustard", basePrice: 5520 },
+      { id: 29, name: "Asansol Grain Market", city: "Asansol", lat: 23.6889, lng: 86.9661, crop: "Wheat", basePrice: 2390 },
+      { id: 30, name: "Kalyani APMC Yard", city: "Kalyani", lat: 22.9750, lng: 88.4344, crop: "Wheat", basePrice: 2370 },
+      { id: 31, name: "Kalipur Mandi Yard", city: "Kalipur", lat: 22.9800, lng: 88.4000, crop: "Potato", basePrice: 1450 },
+      { id: 32, name: "Ramkrishnapur Market Yard", city: "Ramkrishnapur", lat: 22.5800, lng: 88.3300, crop: "Wheat", basePrice: 2360 },
+      { id: 33, name: "Bishnupur APMC Market", city: "Bishnupur", lat: 23.0700, lng: 87.3200, crop: "Wheat", basePrice: 2340 }
+    ];
+
+    const DEFAULT_POOLS = [
+      { 
+        id: 101, 
+        name: "Tarai-Kumaon Farmers Collective", 
+        crop: "Soybean", 
+        current: 310, 
+        target: 500, 
+        baseBonus: 85, 
+        city: "Haldwani", 
+        lat: 29.2183, 
+        lng: 79.5130, 
+        hub: "Haldwani Transport Nagar",
+        linkedFarmers: [
+          { name: "Puran Singh", village: "Lalkuan", qty: 25 },
+          { name: "Harish Negi", village: "Kathgodam", qty: 40 },
+          { name: "Gopal Joshi", village: "Golapar", qty: 35 }
+        ]
+      },
+      { 
+        id: 102, 
+        name: "Udham Singh Nagar Agro FPO", 
+        crop: "Wheat", 
+        current: 380, 
+        target: 600, 
+        baseBonus: 65, 
+        city: "Rudrapur", 
+        lat: 28.9800, 
+        lng: 79.4000, 
+        hub: "Rudrapur Bypass",
+        linkedFarmers: [
+          { name: "Jaswant Singh", village: "Kichha", qty: 70 },
+          { name: "Balvinder Kaur", village: "Pantnagar", qty: 55 }
+        ]
+      }
+    ];
+
+    const DEFAULT_BUYERS = [
+      { id: 201, name: "Tarai Agro Foods Ltd", crop: "Wheat", quantity: 1500, basePrice: 2470, city: "Rudrapur", lat: 28.9800, lng: 79.4000, location: "SIDCUL Phase-2, Rudrapur" },
+      { id: 202, name: "Haldwani Flour & Oil Extraction", crop: "Soybean", quantity: 700, basePrice: 5120, city: "Haldwani", lat: 29.2183, lng: 79.5130, location: "Rampur Road, Haldwani" }
+    ];
+
+    const state = {
+      freightPerQtlPerKm: parseFloat(localStorage.getItem('ks_freight')) || 0.45,
+      fpoDiscountPct: parseFloat(localStorage.getItem('ks_fpo_discount')) || 25,
+      markets: JSON.parse(localStorage.getItem('ks_markets')) || DEFAULT_MARKETS,
+      pools: JSON.parse(localStorage.getItem('ks_pools')) || DEFAULT_POOLS,
+      buyers: JSON.parse(localStorage.getItem('ks_buyers')) || DEFAULT_BUYERS,
+      crops: JSON.parse(localStorage.getItem('ks_crops')) || DEFAULT_CROPS,
+      userLocationInput: "Haldwani",
+      userCoords: { lat: 29.2183, lng: 79.5130 }
+    };
+
+    function saveState() {
+      localStorage.setItem('ks_freight', state.freightPerQtlPerKm);
+      localStorage.setItem('ks_fpo_discount', state.fpoDiscountPct);
+      localStorage.setItem('ks_markets', JSON.stringify(state.markets));
+      localStorage.setItem('ks_pools', JSON.stringify(state.pools));
+      localStorage.setItem('ks_buyers', JSON.stringify(state.buyers));
+      localStorage.setItem('ks_crops', JSON.stringify(state.crops));
+    }
+
+    function resolveLocationCoordinates(textInput) {
+      if(!textInput) return { lat: 29.2183, lng: 79.5130 };
+      const cleaned = textInput.trim().toLowerCase();
+      for (const [key, coords] of Object.entries(KNOWN_COORDINATES)) {
+        if (cleaned.includes(key)) {
+          return { lat: coords.lat, lng: coords.lng };
+        }
+      }
+      let hash = 0;
+      for (let i = 0; i < cleaned.length; i++) hash = cleaned.charCodeAt(i) + ((hash << 5) - hash);
+      return {
+        lat: 29.2183 + (((Math.abs(hash) % 100) - 50) / 200),
+        lng: 79.5130 + (((Math.abs(hash >> 2) % 100) - 50) / 200)
+      };
+    }
+
+    function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * (Math.PI / 180);
+      const dLon = (lon2 - lon1) * (Math.PI / 180);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return Math.max(2, Math.round(R * c * 1.35));
+    }
+
+    window.switchRole = function(roleId, evt) {
+      document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+
+      evt.currentTarget.classList.add('active');
+      document.getElementById(`panel-${roleId}`).classList.add('active');
+
+      if (roleId === 'fpo') renderFpoPools();
+      if (roleId === 'buyer') renderBuyerTable();
+    };
+
+    function initDropdowns() {
+      const selectors = ['farmerCrop', 'newCropSelect', 'buyerCrop'];
+      selectors.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = '';
+        state.crops.forEach(crop => {
+          const opt = document.createElement('option');
+          opt.value = crop;
+          opt.innerText = crop;
+          el.appendChild(opt);
+        });
+      });
+      const farmerCropSelect = document.getElementById('farmerCrop');
+      if (farmerCropSelect && state.crops.length > 0) {
+        farmerCropSelect.selectedIndex = 0;
+      }
+    }
+
+    function initViews() {
+      document.getElementById('adminFreightRate').value = state.freightPerQtlPerKm;
+      document.getElementById('adminFpoDiscount').value = state.fpoDiscountPct;
+      renderAdminTable();
+      renderBuyerTable();
+      renderFpoPools();
+      runCalculations();
+    }
+
+    window.handleFarmerSubmit = function(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      const compareBtn = document.getElementById('compareMarketsBtn');
+      if (compareBtn) {
+        compareBtn.disabled = true;
+        compareBtn.innerText = 'Comparing Markets...';
+      }
+
+      const locationInput = document.getElementById('farmerLocationInput').value.trim() || "Haldwani";
+      state.userLocationInput = locationInput;
+      state.userCoords = resolveLocationCoordinates(locationInput);
+
+      document.getElementById('activeLocationBanner').innerText = `Active Origin: ${locationInput}`;
+      runCalculations();
+      renderFpoPools();
+      renderBuyerTable();
+
+      if (compareBtn) {
+        compareBtn.disabled = false;
+        compareBtn.innerText = 'Calculate & Compare Markets';
+      }
+      return false;
+    };
+
+    function runCalculations() {
+      const cropSelect = document.getElementById('farmerCrop');
+      const yieldInput = document.getElementById('farmerYield');
+      const resultsContainer = document.getElementById('comparisonResults');
+
+      if (!resultsContainer) return;
+
+      let crop = cropSelect ? cropSelect.value : null;
+      if (!crop && state.crops.length > 0) {
+        crop = state.crops[0];
+        if (cropSelect) cropSelect.value = crop;
+      }
+
+      const yieldQty = yieldInput ? (parseFloat(yieldInput.value) || 50) : 50;
+      resultsContainer.innerHTML = '';
+
+      if (!crop) {
+        resultsContainer.innerHTML = `<p style="grid-column: 1/-1; color: var(--text-muted); font-size: 0.9rem;">Please select a crop to compare markets.</p>`;
+        return;
+      }
+
+      const matchedMarkets = state.markets.filter(m => m.crop.toLowerCase() === crop.toLowerCase());
+
+      if (matchedMarkets.length === 0) {
+        resultsContainer.innerHTML = `<p style="grid-column: 1/-1; color: var(--text-muted); font-size: 0.9rem;">No mandis currently reporting live prices for ${crop}. Add mandis in Admin view.</p>`;
+        return;
+      }
+
+      const analyzed = matchedMarkets.map(m => {
+        const distance = calculateHaversineDistance(state.userCoords.lat, state.userCoords.lng, m.lat, m.lng);
+        const dynamicPrice = m.basePrice;
+        const gross = yieldQty * dynamicPrice;
+        const transportCost = yieldQty * distance * state.freightPerQtlPerKm;
+        const netProfit = gross - transportCost;
+        return { ...m, distance, dynamicPrice, gross, transportCost, netProfit };
+      });
+
+      analyzed.sort((a, b) => b.netProfit - a.netProfit);
+      const maxProfit = analyzed[0].netProfit;
+
+      analyzed.forEach(m => {
+        const isBest = m.netProfit === maxProfit;
+        const card = document.createElement('div');
+        card.className = `market-card ${isBest ? 'best-deal' : ''}`;
+        
+        card.innerHTML = `
+          ${isBest ? '<div class="badge-best">Best Net Return</div>' : ''}
+          <div class="market-name">${escapeHtml(m.name)}</div>
+          <div class="market-distance">📍 ${m.distance} km from ${escapeHtml(state.userLocationInput)} (${escapeHtml(m.city)})</div>
+          
+          <div class="metric-row">
+            <span style="color: var(--text-muted)">Live Mandi Rate</span>
+            <strong>₹${m.dynamicPrice.toLocaleString('en-IN')}/Qtl</strong>
+          </div>
+          <div class="metric-row">
+            <span style="color: var(--text-muted)">Gross Revenue</span>
+            <span>₹${Math.round(m.gross).toLocaleString('en-IN')}</span>
+          </div>
+          <div class="metric-row">
+            <span style="color: var(--text-muted)">Transport Cost (${m.distance} km)</span>
+            <span style="color: #b91c1c;">- ₹${Math.round(m.transportCost).toLocaleString('en-IN')}</span>
+          </div>
+          <div class="metric-row net">
+            <span>Net Realization</span>
+            <span>₹${Math.round(m.netProfit).toLocaleString('en-IN')}</span>
+          </div>
+        `;
+        resultsContainer.appendChild(card);
+      });
+    }
+
+    function renderFpoPools() {
+      const container = document.getElementById('fpoPoolsList');
+      const select = document.getElementById('pledgePoolSelect');
+      if (!container || !select) return;
+
+      container.innerHTML = '';
+      select.innerHTML = '';
+
+      const localizedPools = state.pools.map(p => {
+        const distance = calculateHaversineDistance(state.userCoords.lat, state.userCoords.lng, p.lat, p.lng);
+        return { ...p, distance };
+      });
+
+      localizedPools.sort((a, b) => a.distance - b.distance);
+
+      localizedPools.forEach(pool => {
+        const percent = Math.min(100, Math.round((pool.current / pool.target) * 100));
+        
+        let chipsHtml = '';
+        if (pool.linkedFarmers && pool.linkedFarmers.length > 0) {
+          chipsHtml = pool.linkedFarmers.map(f => 
+            `<span class="farmer-chip">👤 ${escapeHtml(f.name)} (${escapeHtml(f.village)} - ${f.qty}Q)</span>`
+          ).join('');
+        }
+
+        const card = document.createElement('div');
+        card.className = 'pool-card';
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <strong style="font-size: 1.05rem;">${escapeHtml(pool.name)}</strong>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">
+                Crop: <strong>${pool.crop}</strong> • Hub: ${pool.hub} (<strong>${pool.distance} km</strong> away in ${pool.city})
+              </div>
+            </div>
+            <span style="font-size: 0.75rem; font-weight: 700; background: var(--primary-light); color: var(--primary); padding: 0.25rem 0.5rem; border-radius: 4px;">
+              +₹${pool.baseBonus}/Qtl FTL Premium
+            </span>
+          </div>
+
+          <div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width: ${percent}%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">
+              <span>Total Pooled: ${pool.current} Qtl / ${pool.target} Qtl Capacity</span>
+              <span><strong>${percent}%</strong> Capacity</span>
+            </div>
+          </div>
+
+          <div>
+            <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Linked Small Farmers:</span>
+            <div class="farmer-chips">${chipsHtml || '<span style="font-size:0.75rem; color:var(--text-muted);">Be the first farmer to link!</span>'}</div>
+          </div>
+        `;
+        container.appendChild(card);
+
+        const opt = document.createElement('option');
+        opt.value = pool.id;
+        opt.innerText = `${pool.name} (${pool.crop}) - ${pool.city}`;
+        select.appendChild(opt);
+      });
+    }
+
+    window.pledgeToPool = function(e) {
+      e.preventDefault();
+      const farmerName = document.getElementById('pledgeFarmerName').value.trim();
+      const farmerVillage = document.getElementById('pledgeFarmerVillage').value.trim();
+      const poolId = parseInt(document.getElementById('pledgePoolSelect').value);
+      const qty = parseFloat(document.getElementById('pledgeQuantity').value);
+
+      if (!farmerName || !farmerVillage || isNaN(qty) || qty <= 0) return;
+
+      const targetPool = state.pools.find(p => p.id === poolId);
+      if (targetPool) {
+        targetPool.current += qty;
+        if (!targetPool.linkedFarmers) targetPool.linkedFarmers = [];
+        targetPool.linkedFarmers.push({ name: farmerName, village: farmerVillage, qty: qty });
+        
+        saveState();
+        renderFpoPools();
+        alert(`Linked ${qty} Quintals to ${targetPool.name}!`);
+        document.getElementById('pledgeQuantity').value = '';
+        document.getElementById('pledgeFarmerName').value = '';
+        document.getElementById('pledgeFarmerVillage').value = '';
+      }
+    };
+
+    window.postBuyerDemand = function(e) {
+      e.preventDefault();
+      const name = document.getElementById('buyerName').value.trim();
+      const crop = document.getElementById('buyerCrop').value;
+      const quantity = parseFloat(document.getElementById('buyerQuantity').value);
+      const basePrice = parseFloat(document.getElementById('buyerPrice').value);
+      const city = document.getElementById('buyerLocationName').value.trim();
+
+      if (name && crop && !isNaN(quantity) && !isNaN(basePrice) && city) {
+        const coords = resolveLocationCoordinates(city);
+        state.buyers.unshift({ id: Date.now(), name, crop, quantity, basePrice, city, lat: coords.lat, lng: coords.lng, location: city });
+        saveState();
+        renderBuyerTable();
+        document.getElementById('buyerDemandForm').reset();
+      }
+    };
+
+    function renderBuyerTable() {
+      const tbody = document.getElementById('buyerDemandTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const localizedBuyers = state.buyers.map(b => {
+        const distance = calculateHaversineDistance(state.userCoords.lat, state.userCoords.lng, b.lat, b.lng);
+        const transportDeduction = distance * state.freightPerQtlPerKm;
+        const netFarmgateOffer = Math.round(b.basePrice - transportDeduction);
+        return { ...b, distance, netFarmgateOffer };
+      });
+
+      localizedBuyers.sort((a, b) => a.distance - b.distance);
+
+      localizedBuyers.forEach(b => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(b.name)}</strong></td>
+          <td>${escapeHtml(b.crop)}</td>
+          <td>${b.quantity}</td>
+          <td>₹${b.basePrice}</td>
+          <td>${b.distance} km (${escapeHtml(b.city)})</td>
+          <td><strong style="color: var(--primary);">₹${b.netFarmgateOffer}/Qtl</strong></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.updateLogisticsSettings = function() {
+      const freight = parseFloat(document.getElementById('adminFreightRate').value);
+      const fpoDiscount = parseFloat(document.getElementById('adminFpoDiscount').value);
+
+      if (!isNaN(freight) && freight >= 0 && !isNaN(fpoDiscount)) {
+        state.freightPerQtlPerKm = freight;
+        state.fpoDiscountPct = fpoDiscount;
+        saveState();
+        runCalculations();
+        renderBuyerTable();
+        alert('Logistics settings updated.');
+      }
+    };
+
+    function renderAdminTable() {
+      const tbody = document.getElementById('adminMarketTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      state.markets.forEach(m => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(m.name)}</strong></td>
+          <td>${escapeHtml(m.city)}</td>
+          <td>${escapeHtml(m.crop)}</td>
+          <td>₹${m.basePrice}</td>
+          <td>
+            <button class="btn btn-danger" onclick="deleteMarket(${m.id})">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.addNewMarket = function(e) {
+      e.preventDefault();
+      const name = document.getElementById('newMarketName').value.trim();
+      const city = document.getElementById('newMarketCity').value.trim();
+      const crop = document.getElementById('newCropSelect').value;
+      const basePrice = parseFloat(document.getElementById('newCropPrice').value);
+
+      if (name && city && !isNaN(basePrice)) {
+        const coords = resolveLocationCoordinates(city);
+        state.markets.push({ id: Date.now(), name, city, lat: coords.lat, lng: coords.lng, crop, basePrice });
+        saveState();
+        renderAdminTable();
+        runCalculations();
+        document.getElementById('addMarketForm').reset();
+      }
+    };
+
+    window.deleteMarket = function(id) {
+      state.markets = state.markets.filter(m => m.id !== id);
+      saveState();
+      renderAdminTable();
+      runCalculations();
+    };
+
+    window.handleExcelUpload = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const status = document.getElementById('importStatus');
+      status.style.color = "#0284c7";
+      status.innerText = "Processing spreadsheet...";
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const rows = XLSX.utils.sheet_to_json(worksheet);
+
+          if (!rows || rows.length === 0) {
+            status.style.color = "#b91c1c";
+            status.innerText = "Uploaded sheet contains no readable records.";
+            return;
+          }
+
+          let addedCount = 0;
+          rows.forEach((row, index) => {
+            const name = row.MarketName || row.name || row.Market;
+            const city = row.City || row.city || row.Location || "Haldwani";
+            const crop = row.Crop || row.crop || "Wheat";
+            const price = parseFloat(row.BasePrice || row.basePrice || row.Price || row.price);
+
+            if (name && !isNaN(price)) {
+              const coords = resolveLocationCoordinates(city);
+              state.markets.push({
+                id: Date.now() + index,
+                name: String(name).trim(),
+                city: String(city).trim(),
+                lat: coords.lat,
+                lng: coords.lng,
+                crop: String(crop).trim(),
+                basePrice: price
+              });
+
+              if (!state.crops.includes(crop)) {
+                state.crops.push(crop);
+              }
+              addedCount++;
+            }
+          });
+
+          saveState();
+          initDropdowns();
+          renderAdminTable();
+          runCalculations();
+
+          status.style.color = "var(--primary)";
+          status.innerText = `Success! Imported ${addedCount} mandi records from ${file.name}. Updated on Farmer Portal.`;
+          e.target.value = '';
+        } catch (err) {
+          console.error(err);
+          status.style.color = "#b91c1c";
+          status.innerText = "Error parsing Excel file. Please ensure correct columns.";
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    };
+
+    window.downloadSampleExcel = function() {
+      const sampleData = [
+        { MarketName: "Rajkot Grain Market", City: "Rajkot", Crop: "Wheat", BasePrice: 2420 },
+        { MarketName: "Aligarh APMC Market", City: "Aligarh", Crop: "Wheat", BasePrice: 2400 },
+        { MarketName: "Nasik Main APMC", City: "Nasik", Crop: "Soybean", BasePrice: 4900 }
+      ];
+      const worksheet = XLSX.utils.json_to_sheet(sampleData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "MandiPrices");
+      XLSX.writeFile(workbook, "Mandi_Price_Template.xlsx");
+    };
+
+    // ================= GEMINI LLM INTEGRATION =================
+
+    window.promptApiKey = function() {
+      const current = sessionStorage.getItem('GEMINI_API_KEY') || '';
+      const key = prompt("Enter your Google Gemini API Key:", current);
+      if (key !== null) {
+        sessionStorage.setItem('GEMINI_API_KEY', key.trim());
+        alert(key.trim() ? "Gemini API Key saved for this session." : "API Key cleared.");
+      }
+    };
+
+    function getApiKey() {
+      let key = sessionStorage.getItem('GEMINI_API_KEY');
+      if (!key) {
+        key = prompt("Please enter your Google Gemini API Key to enable the AI Advisory:");
+        if (key) {
+          sessionStorage.setItem('GEMINI_API_KEY', key.trim());
+        }
+      }
+      return key ? key.trim() : null;
+    }
+
+    function buildMarketIntelligenceContext() {
+      const origin = state.userLocationInput;
+      const originCoords = state.userCoords;
+      const freightRate = state.freightPerQtlPerKm;
+      const discount = state.fpoDiscountPct;
+
+      const marketsSummary = state.markets.map(m => {
+        const dist = calculateHaversineDistance(originCoords.lat, originCoords.lng, m.lat, m.lng);
+        const freight = dist * freightRate;
+        const net = m.basePrice - freight;
+        return `${m.name} (${m.city}): ${m.crop} @ Rs.${m.basePrice}/Qtl | Dist: ${dist}km | Transport: Rs.${Math.round(freight)}/Qtl | Net: Rs.${Math.round(net)}/Qtl`;
+      }).join('\n');
+
+      const poolsSummary = state.pools.map(p => {
+        const dist = calculateHaversineDistance(originCoords.lat, originCoords.lng, p.lat, p.lng);
+        return `${p.name} in ${p.city} (${dist}km away) for ${p.crop} | Pooled: ${p.current}/${p.target} Qtl | Premium: +Rs.${p.baseBonus}/Qtl`;
+      }).join('\n');
+
+      return `You are KrishiSetu's Expert Agricultural Market Advisor in Uttarakhand and regional India.
+Your role: Provide concise, clear, and actionable advice to farmers on where to sell, whether to hold or sell now, net profits after logistics, and the power of FPO pooling.
+
+LIVE DATA CONTEXT:
+- Farmer Origin: ${origin}
+- Freight Rate: Rs. ${freightRate} per Quintal per Kilometer
+- FPO Logistics Pooling Discount: ${discount}%
+
+CURRENT REGISTERED MANDI RATES & NET PROFIT ESTIMATES:
+${marketsSummary}
+
+ACTIVE FPO COLLECTIVE POOLS:
+${poolsSummary}
+
+Guidelines:
+1. Speak clearly and empathetically to farmers.
+2. Directly answer with concrete figures (Mandi names, gross prices, freight deductions, net realization).
+3. Do not make up prices—always cite the numbers provided in the context above.
+4. Keep answers focused and avoid jargon.`;
+    }
+
+    window.sendQuickAiQuery = function(text) {
+      document.getElementById('ai-query-input').value = text;
+      handleAiQuerySubmit();
+    };
+
+    window.handleAiQuerySubmit = async function() {
+      const input = document.getElementById('ai-query-input');
+      const output = document.getElementById('ai-advisory-output');
+      const submitBtn = document.getElementById('ai-submit-btn');
+      const text = input.value.trim();
+
+      if (!text) return;
+
+      const apiKey = getApiKey();
+      if (!apiKey) {
+        alert("A Gemini API Key is required to use this feature.");
+        return;
+      }
+
+      const userMsg = document.createElement('div');
+      userMsg.className = 'chat-msg user';
+      userMsg.innerText = text;
+      output.appendChild(userMsg);
+
+      input.value = '';
+      output.scrollTop = output.scrollHeight;
+
+      const aiMsg = document.createElement('div');
+      aiMsg.className = 'chat-msg ai';
+      aiMsg.innerText = 'Analyzing mandi rates & computing net returns with Gemini...';
+      output.appendChild(aiMsg);
+      output.scrollTop = output.scrollHeight;
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Thinking...';
+
+      try {
+        const ai = new GoogleGenAI({ apiKey: apiKey });
+        const systemInstruction = buildMarketIntelligenceContext();
+
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: text,
+          config: {
+            systemInstruction: systemInstruction,
+            temperature: 0.3
+          }
+        });
+
+        aiMsg.innerText = response.text || "No response received from Gemini.";
+      } catch (err) {
+        console.error("Gemini invocation failed:", err);
+        aiMsg.innerText = `Error: ${err.message || 'Failed to communicate with Gemini.'} (Verify your API key).`;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Ask AI';
+        output.scrollTop = output.scrollHeight;
+      }
+    };
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initDropdowns();
+      initViews();
+
+      const aiInput = document.getElementById('ai-query-input');
+      if (aiInput) {
+        aiInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') handleAiQuerySubmit();
+        });
+      }
+    });
+  </script>
+</body>
+</html>
