@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KisanConnect</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Top navigation -->
+  <nav class="navbar">
+    <div class="logo">🌾 KisanConnect</div>
+    <div class="nav-links">
+      <button class="nav-btn active" data-page="home">Home</button>
+      <button class="nav-btn" data-page="prices">Live Prices</button>
+      <button class="nav-btn" data-page="advisor">AI Advisor</button>
+      <button class="nav-btn" data-page="fpo">FPO Pooling</button>
+    </div>
+  </nav>
+
+  <!-- HOME PAGE -->
+  <section id="home" class="page active">
+    <div class="hero">
+      <h1>Better prices. Better decisions. Together.</h1>
+      <p>KisanConnect helps farmers see real mandi prices, get AI-backed selling advice, and pool produce with nearby farmers for bulk bargaining power.</p>
+      <button class="cta-btn" id="tryDemoBtn">Try Demo</button>
+    </div>
+    <div class="feature-cards">
+      <div class="card">
+        <h3>📈 Live Prices</h3>
+        <p>Real mandi price data, updated and trend-tracked.</p>
+      </div>
+      <div class="card">
+        <h3>🤖 AI Advisor</h3>
+        <p>Get a clear sell / hold recommendation based on real data.</p>
+      </div>
+      <div class="card">
+        <h3>🤝 FPO Pooling</h3>
+        <p>Combine produce with nearby farmers for bulk selling power.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE PRICES PAGE -->
+  <section id="prices" class="page">
+    <h2>Live Mandi Prices</h2>
+    <div class="filters">
+      <select id="cropFilter">
+        <option value="all">All Crops</option>
+      </select>
+      <select id="mandiFilter">
+        <option value="all">All Mandis</option>
+      </select>
+    </div>
+    <div id="priceCards" class="price-cards"></div>
+    <canvas id="trendChart" width="600" height="300"></canvas>
+  </section>
+
+  <!-- AI ADVISOR PAGE -->
+  <section id="advisor" class="page">
+    <h2>AI Market Advisor</h2>
+    <div class="advisor-box">
+      <select id="advisorCrop">
+        <option value="">Select your crop</option>
+      </select>
+      <button id="askAdvisorBtn">Get Advice</button>
+      <div id="advisorResponse" class="advisor-response"></div>
+    </div>
+  </section>
+
+  <!-- FPO PAGE -->
+  <section id="fpo" class="page">
+    <h2>Farmer Producer Pooling</h2>
+    <div id="fpoList" class="fpo-list"></div>
+    <div class="pool-summary">
+      <p>Total pooled quantity: <span id="poolTotal">0</span> quintals</p>
+      <p>Estimated bulk price boost: <span id="poolBoost">0%</span></p>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="script.js"></script>
+
+  <script src="script.js"></script>
+</body>
+</html>
