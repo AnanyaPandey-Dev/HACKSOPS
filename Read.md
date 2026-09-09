@@ -13,3 +13,13 @@ AI/ML Assistant – Analyzes prices and mandi data to help farmers decide when t
 FPO Feature – Connects small farmers locally so they can combine their produce and sell in bulk, giving them better market access and bargaining power.
 
 No payment flow required at all — it's advisory, not transactional, which also makes it far easier to build and trust.
+Proposed Solution
+Smart Mandi Comparison: Compare prices across nearby mandis.
+Net Profit Calculation: Consider mandi price, distance and transportation cost.
+Best Selling Recommendation: Suggest the mandi with the highest expected net return.
+FPO Support: Pool produce to reduce transport costs and improve bargaining power.
+Buyer Connection: Match farmers/FPOs with buyer requirements and offers.
+AI Assistant: Provide personalized, data-based market guidance.
+
+Core Idea:
+“Sell at the right market, reduce unnecessary costs, and maximize farmer income.”
